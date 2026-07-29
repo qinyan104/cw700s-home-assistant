@@ -10,6 +10,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_FILES = {
+    "docs/00-install-haos-vmware.md",
     "custom_components/cw700s_downloader/__init__.py",
     "custom_components/cw700s_downloader/manifest.json",
     "custom_components/cw700s_downloader/services.yaml",

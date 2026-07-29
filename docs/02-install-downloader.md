@@ -1,10 +1,18 @@
-# 02. 安装录像下载器
+# 02. 安装下载器并取得第一条 MP4
 
-本章把下载器复制到 Home Assistant，完成配置检查，并手动执行一次完整同步。仓库默认位于 Windows `D:\CW700S\cw700s-home-assistant`，在 Home Assistant 中对应 `/media/Windows_CW700S/cw700s-home-assistant`。
+完成本章后，Windows 的 `D:\CW700S\PeopleMotion` 或 `D:\CW700S\ObjectMotion` 中会出现至少一条 MP4，Home Assistant 中会出现 `sensor.cw700s_sync_status`。
+
+开始前必须通过 [01. 连接 CW700S、Windows 存储与教程仓库](01-environment.md) 的四项验收。
 
 ## 安装前备份
 
-先在 Home Assistant 的“设置 → 系统 → 备份”中创建备份。下面使用固定的 `.cw700s.bak` 名称，并在同名备份已存在时停止，避免覆盖上一次可用备份。后两项只在旧文件存在时执行：
+**操作位置：Home Assistant 界面**
+
+先在“设置 → 系统 → 备份”中创建完整备份。
+
+**操作位置：Terminal & SSH**
+
+下面的命令不会覆盖同名备份；如果备份已存在，会直接停止：
 
 ```bash
 test ! -e /config/configuration.yaml.cw700s.bak || { echo '配置备份已存在，请先改名保存'; exit 1; }
@@ -23,81 +31,83 @@ if [ -f /config/cw700s_download.py ]; then
 fi
 ```
 
-## 复制自定义组件
+## 确认扫描范围
 
-复制前先确认扫描窗口。`custom_components/cw700s_downloader/__init__.py` 默认包含：
+下载器默认使用：
 
 ```python
 INITIAL_DAYS = 35
 INCREMENTAL_DAYS = 30
 ```
 
-`full_scan: true` 使用 `INITIAL_DAYS`，只查询最近 35 天，不是不限时间扫描全部历史；日常 `full_scan: false` 使用 `INCREMENTAL_DAYS`，查询最近 30 天。需要其他窗口时，先修改仓库中的这两个常量，再复制组件。
+- 首次 `full_scan: true` 查询最近 35 天；
+- 日常 `full_scan: false` 查询最近 30 天；
+- “完整扫描”不是不限时间的全部历史。
 
-在 Terminal & SSH 中执行：
+初次安装先保持默认值。确实需要其他范围时，在复制组件前修改 `custom_components/cw700s_downloader/__init__.py`。
+
+## 复制下载器
+
+**操作位置：Terminal & SSH**
 
 ```bash
 mkdir -p /config/custom_components/cw700s_downloader
 cp -r /media/Windows_CW700S/cw700s-home-assistant/custom_components/cw700s_downloader/* \
   /config/custom_components/cw700s_downloader/
-```
-
-确认组件的三个文件已经到位：
-
-```bash
-ls -la /config/custom_components/cw700s_downloader
-```
-
-应看到 `__init__.py`、`manifest.json` 和 `services.yaml`。
-
-## 复制下载脚本
-
-执行：
-
-```bash
 cp /media/Windows_CW700S/cw700s-home-assistant/home-assistant/cw700s_download.py \
   /config/cw700s_download.py
 ```
 
-确认目标文件存在：
+立即检查：
 
 ```bash
+ls -la /config/custom_components/cw700s_downloader
 ls -l /config/cw700s_download.py
 ```
 
+正常结果：组件目录中存在 `__init__.py`、`manifest.json` 和 `services.yaml`，下载脚本也存在。
+
 ## 启用组件
 
-用文件编辑器打开 `/config/configuration.yaml`，添加以下顶层集成项：
+**操作位置：Home Assistant 文件编辑器**
+
+打开 `/config/configuration.yaml`，添加下面的顶层键：
 
 ```yaml
 cw700s_downloader:
 ```
 
-这一行应顶格书写。不要为了添加它创建第二个 `homeassistant:` 块，也不要把它缩进现有的 `homeassistant:` 块内。
+这一行必须顶格书写。不要创建第二个 `homeassistant:`，也不要把它缩进现有的 `homeassistant:` 中。
 
-## 修改摄像头实体示例
-
-使用上一章在“开发者工具 → 状态”中找到的实体 ID，替换后续操作里的：
-
-```text
-camera.your_cw700s
-```
-
-仓库保留的是公开占位值，不应提交自己的实体 ID。首次同步操作会通过 `entity_id` 明确传入真实实体；不要把小米账号、token、Cookie 或临时签名 URL 写进 YAML。
-
-## 检查并重启 Home Assistant
-
-每次修改配置后先检查，成功后再重启：
+**操作位置：Terminal & SSH**
 
 ```bash
 ha core check && ha core restart
 ```
 
-`ha core check` 失败时，`&&` 会阻止重启。检查失败时保留错误信息，修正缩进、重复键或文件路径后重新检查。
+`ha core check` 失败时，`&&` 会阻止重启。先按错误提示修正 YAML；不要跳过检查强制重启。
 
-## 手动执行首次完整同步
+## 确认服务和状态实体
 
-重启完成后，打开“开发者工具 → 操作”，切换到 YAML 编辑方式，填入以下操作，并把实体 ID 换成自己的：
+重启完成后，打开“开发者工具 → 状态”，搜索：
+
+```text
+sensor.cw700s_sync_status
+```
+
+再打开“开发者工具 → 操作”，确认能找到：
+
+```text
+cw700s_downloader.sync
+```
+
+两者都出现才继续。如果缺少其中一项，直接查看 [找不到同步操作或状态实体](06-troubleshooting.md#找不到同步操作或状态实体)。
+
+## 手动下载第一条录像
+
+**操作位置：Home Assistant 开发者工具 → 操作**
+
+切换到 YAML 编辑方式，粘贴下面内容，并把实体 ID 换成自己的：
 
 ```yaml
 action: cw700s_downloader.sync
@@ -106,41 +116,45 @@ data:
   full_scan: true
 ```
 
-执行一次即可。这里的“完整”是当前实现的 35 天首次窗口，不是小米云账号的无限历史；自动任务使用 30 天增量窗口，在下一章配置。同步过程中不要重复触发同一操作。
+执行一次后等待状态实体停止处理。同步过程中不要重复触发；组件会拒绝重叠任务。
 
-## 确认生成的录像与状态实体
+如果最近 35 天没有任何云告警，先在摄像头前制造一次可正常上报到 Xiaomi Home 的移动告警，等待告警录像出现在小米云，再重新执行同步。
 
-回到“开发者工具 → 状态”，搜索：
+## 验证第一条 MP4
 
-```text
-sensor.cw700s_sync_status
-```
-
-正常结果是该实体出现并显示同步进度。根据告警事件类型，MP4 文件会出现在 Windows 的 `D:\CW700S\PeopleMotion` 或 `D:\CW700S\ObjectMotion` 下。也可以从 Terminal & SSH 查看对应挂载目录：
+**操作位置：Terminal & SSH**
 
 ```bash
 find /media/Windows_CW700S/PeopleMotion /media/Windows_CW700S/ObjectMotion \
   -type f -name '*.mp4' 2>/dev/null
 ```
 
-首次同步处理到至少一条云告警录像时，也完成真正的 Home Assistant Core FFmpeg 验收。以状态实体持续更新、最终停止处理，并至少在有云告警的类别目录中出现 MP4 为正常结果。若 FFmpeg 查找或媒体处理失败，查看 `sensor.cw700s_sync_status` 的错误属性和“设置 → 系统 → 日志”；Terminal & SSH 应用中的 `ffmpeg -version` 不能替代这项检查。
+正常结果：至少输出一条 MP4 路径。Windows 中对应位置是：
 
-下载过程使用的小米云临时签名 URL 属于敏感信息，绝不能分享到仓库、Issue、聊天记录或公开日志中。
+```text
+D:\CW700S\PeopleMotion
+D:\CW700S\ObjectMotion
+```
 
-## 常见错误
+这一步同时验证了 Xiaomi Miot 云连接、Home Assistant Core 中的 FFmpeg、SMB 写权限和下载器。Terminal & SSH 应用里的 `ffmpeg -version` 不能替代这项端到端检查，因为应用与 Home Assistant Core 是不同容器。
 
-- 找不到 `cw700s_downloader.sync`：确认组件目录内有三个文件、`configuration.yaml` 中存在顶层 `cw700s_downloader:`，然后重新执行 `ha core check` 和重启。
-- `ha core check` 失败：先检查 YAML 缩进和重复键；无法立即修正时，按回滚步骤恢复备份，不要带着失败配置重启。
-- `sensor.cw700s_sync_status` 出现但没有录像：确认传入的是自己的 CW700S 实体，并重新执行 `ls -la /media/Windows_CW700S` 检查 SMB 挂载。
-- 写入时报权限或只读错误：回到 Windows 共享权限和 Home Assistant 网络存储设置，修正后再同步。
-- FFmpeg 查找或媒体处理失败：查看 `sensor.cw700s_sync_status` 的错误属性和 Home Assistant Core 日志，不要用 Terminal & SSH 应用容器中的命令结果判断 Core 状态。
-- 小米云访问失败：在 Xiaomi Miot 集成中检查登录状态；排错时不要发布临时签名 URL、Cookie 或账号信息。
+## 核心路径完成
+
+满足以下两项即完成首次成功：
+
+- `sensor.cw700s_sync_status` 完成一次同步；
+- Windows 中出现至少一条可播放的 MP4。
+
+现在可以停止，也可以继续 [03. 自动同步与仪表板](03-automation-and-dashboard.md)。健康监控和本地 AI 都是可选增强，不影响已经完成的下载流程。
+
+小米云临时签名 URL 属于敏感信息。不要把完整地址放进 GitHub、Issue、截图、聊天记录或公开日志。
 
 ## 回滚
 
-如果组件已经开始同步，先在“开发者工具 → 操作”执行 `cw700s_downloader.stop`。然后在 Terminal & SSH 中恢复安装前文件。
+<details>
+<summary>展开回滚步骤</summary>
 
-下面的命令会恢复安装前已有的组件和脚本；没有对应备份时，只删除本教程新安装的文件：
+如果组件仍在同步，先在“开发者工具 → 操作”执行 `cw700s_downloader.stop`。然后在 Terminal & SSH 中运行：
 
 ```bash
 if [ -d /config/custom_components/cw700s_downloader.cw700s.bak ]; then
@@ -161,4 +175,6 @@ cp /config/configuration.yaml.cw700s.bak /config/configuration.yaml
 ha core check && ha core restart
 ```
 
-回滚只替换 Home Assistant 侧安装文件，不会删除 Windows `D:\CW700S\PeopleMotion` 或 `D:\CW700S\ObjectMotion` 中已经下载的录像。
+回滚只替换 Home Assistant 侧安装文件，不会删除 Windows 中已经下载的录像。
+
+</details>

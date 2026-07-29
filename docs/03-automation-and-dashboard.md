@@ -1,6 +1,8 @@
 # 03. 自动同步与仪表板
 
-本章把手动同步扩展为每 6 小时一次的增量同步，并在 Home Assistant 中加入同步按钮、停止按钮和最近六条录像。开始前应已完成 [02. 安装录像下载器](02-install-downloader.md)，且 `sensor.cw700s_sync_status` 已出现。
+> 可选增强：不完成本章，也不影响手动下载录像。
+
+完成本章后，Home Assistant 每 6 小时执行一次增量同步，仪表板提供同步、停止和最近六条录像。开始前应已完成 [02. 安装下载器并取得第一条 MP4](02-install-downloader.md)，且 `sensor.cw700s_sync_status` 已出现。
 
 ## 配置每 6 小时增量同步
 
@@ -89,6 +91,9 @@ cp /media/Windows_CW700S/cw700s-home-assistant/home-assistant/www/cw700s-recent-
 
 ## 回滚
 
+<details>
+<summary>展开回滚步骤</summary>
+
 从仪表板删除主卡片和 `/local/cw700s-recent-card.js` 资源。然后恢复安装前的文件：
 
 ```bash
@@ -107,3 +112,5 @@ ha core check && ha core restart
 ```
 
 如果安装时使用了 `.before_github_tutorial.2`，把恢复命令改为该实际备份名。如果备份后又添加了其他自动化，只删除 `id: cw700s_sync_every_6_hours` 对应的列表项，再运行同一条检查与重启命令；不要恢复整个旧文件。上述操作不会删除已下载录像，也不会移除手动同步服务。
+
+</details>

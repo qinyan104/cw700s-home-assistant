@@ -1,11 +1,13 @@
 # 05. Windows 本地 AI 分类（可选）
 
-本章在 Windows 本地分析已经归档的 `ObjectMotion` 录像。AI 是可选阶段；不安装它不会影响 Home Assistant 下载、归档或健康检查。
+> 可选增强：不安装 AI，不会影响 Home Assistant 下载、归档或健康检查。
+
+完成本章后，Windows 会分析已经归档的 `ObjectMotion` 录像，并把人物、车辆和动物分类结果写入本地 SQLite 数据库。
 
 ## 硬件与软件要求
 
 - Windows 能读取 `D:\CW700S\ObjectMotion`；
-- Python 3.11，可通过 `py -3.11` 启动；
+- Python 3.12，可通过 `py -3.12` 启动；本项目实测版本为 `3.12.10`；
 - 首次安装依赖和下载模型时可访问对应的官方软件源；
 - NVIDIA GPU 不是必需条件。现有环境在 RTX 3050 上验证，脚本也支持 CPU 模式。
 
@@ -51,7 +53,7 @@ Copy-Item 'D:\CW700S\cw700s-home-assistant\windows-ai\show_recent_results.ps1' '
 
 ```powershell
 Set-Location 'D:\CW700S\AI'
-py -3.11 -m venv .venv
+py -3.12 -m venv .venv
 & '.\.venv\Scripts\python.exe' -m pip install --upgrade pip
 ```
 
@@ -64,10 +66,16 @@ py -3.11 -m venv .venv
 随后安装分类程序直接使用的包：
 
 ```powershell
-& '.\.venv\Scripts\python.exe' -m pip install ultralytics opencv-python
+& '.\.venv\Scripts\python.exe' -m pip install 'ultralytics==8.4.109' 'opencv-python==5.0.0'
 ```
 
-安装完成后，`torch`、`cv2` 和 `ultralytics` 都应能从该虚拟环境导入。
+安装完成后检查版本：
+
+```powershell
+& '.\.venv\Scripts\python.exe' -c "import torch, cv2, ultralytics; print({'torch': torch.__version__, 'opencv': cv2.__version__, 'ultralytics': ultralytics.__version__})"
+```
+
+本项目实测输出为 PyTorch `2.13.0+cu130`、OpenCV `5.0.0`、Ultralytics `8.4.109`。如果官方 PyTorch 选择器提供了更新的兼容版本，可以使用更新版本，但应记录实际版本后再排错。
 
 ## 检查 CUDA
 
@@ -147,6 +155,9 @@ JSON 输出应表明数据库可读。重启后，开发者工具 → 状态中�
 
 ## 回滚
 
+<details>
+<summary>展开回滚步骤</summary>
+
 先从仪表板删除 AI 卡片。下面的命令会恢复安装前已有的 Home Assistant 文件；没有备份时，只删除本章新安装的对应文件：
 
 ```bash
@@ -189,3 +200,5 @@ foreach ($name in $names) {
 ```
 
 如果安装时使用了 `.before_github_tutorial.2`，先把回滚代码的 `$backupSuffix` 改为相同值。可以保留 `D:\CW700S\AI\cw700s_ai.db` 供以后继续增量分析；若决定删除数据库、预览或虚拟环境，先备份需要的结果，且不要删除 `D:\CW700S\ObjectMotion`。
+
+</details>

@@ -17,6 +17,7 @@ cw700s_sync_state.json
 cw700s_thumbnails/
 AI/preview/
 preview/
+previews/
 
 .DS_Store
 Thumbs.db

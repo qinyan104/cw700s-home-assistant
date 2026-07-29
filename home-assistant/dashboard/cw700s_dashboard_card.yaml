@@ -89,7 +89,7 @@ cards:
       action: perform-action
       perform_action: cw700s_downloader.sync
       data:
-        entity_id: camera.isa_hlzoom_public_example_camera_control
+        entity_id: camera.your_cw700s
         full_scan: false
   - type: button
     name: 停止同步

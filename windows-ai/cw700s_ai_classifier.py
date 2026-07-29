@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CW700S local second-stage classifier.
+r"""CW700S local second-stage classifier.
 
 - Scans D:\CW700S\ObjectMotion recursively by default.
 - Samples three frames from each MP4.

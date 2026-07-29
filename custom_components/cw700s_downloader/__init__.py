@@ -29,7 +29,7 @@ SERVICE_STOP = "stop"
 STATUS_ENTITY_ID = "sensor.cw700s_sync_status"
 STATUS_FRIENDLY_NAME = "CW700S 同步状态"
 
-DEFAULT_ENTITY_ID = "camera.isa_hlzoom_public_example_camera_control"
+DEFAULT_ENTITY_ID = "camera.your_cw700s"
 
 # Windows 中的 D:\CW700S
 DESTINATION_ROOT = Path("/media/Windows_CW700S")

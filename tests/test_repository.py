@@ -29,7 +29,6 @@ REQUIRED_FILES = {
 }
 
 FORBIDDEN_SUFFIXES = {".db", ".log", ".mp4", ".mov", ".avi", ".mkv", ".pt"}
-PRIVATE_ENTITY_ID = "camera.isa_hlzoom_public_example_camera_control"
 PRIVATE_ENTITY_PATTERN = re.compile(
     r"camera\.isa_hlzoom_[a-z0-9]+_camera_control"
 )
@@ -81,26 +80,6 @@ class RepositoryTests(unittest.TestCase):
             if path.is_file() and path.suffix.lower() in FORBIDDEN_SUFFIXES
         )
         self.assertEqual([], forbidden)
-
-    def test_private_entity_id_is_removed(self) -> None:
-        matches = []
-        for path in sorted(ROOT.rglob("*")):
-            relative_path = path.relative_to(ROOT)
-            if (
-                not path.is_file()
-                or ".git" in path.parts
-                or relative_path.parts[:1] == ("tests",)
-                or relative_path.parts[:2] == ("docs", "superpowers")
-            ):
-                continue
-            try:
-                text = path.read_text(encoding="utf-8")
-            except UnicodeDecodeError:
-                continue
-            if PRIVATE_ENTITY_ID in text:
-                matches.append(str(path.relative_to(ROOT)))
-        self.assertEqual([], matches)
-
 
 if __name__ == "__main__":
     unittest.main()

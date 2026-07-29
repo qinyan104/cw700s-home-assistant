@@ -1,0 +1,22 @@
+type: markdown
+title: 系统健康
+content: |-
+  {% set e = 'sensor.cw700s_system_health' %}
+  ## {{ states(e) }}
+
+  **Windows 共享：**
+  {{ '正常' if state_attr(e, 'share_online') else '不可用' }} /
+  {{ '可写' if state_attr(e, 'share_writable') else '不可写' }}
+
+  **磁盘空间：**
+  剩余 {{ state_attr(e, 'free_gb') }} GB，已使用 {{ state_attr(e, 'used_percent') }}%
+
+  **最近同步：**
+  {{ state_attr(e, 'last_sync_time') or '暂无记录' }}
+
+  **查询失败日期：** {{ state_attr(e, 'query_failures') }}
+
+  **下载失败记录：** {{ state_attr(e, 'failed_events') }}
+
+  **检查结果：**
+  {{ state_attr(e, 'problem_summary') }}

@@ -1,0 +1,22 @@
+sync:
+  name: 同步云告警录像
+  description: 查询小米云告警事件，并将新增或缺失的录像同步到 Windows。
+  fields:
+    entity_id:
+      name: 摄像头实体
+      description: Xiaomi Miot 摄像头实体 ID。
+      required: true
+      selector:
+        entity:
+          domain: camera
+    full_scan:
+      name: 完整扫描
+      description: 开启后使用完整扫描天数；关闭后使用日常增量扫描天数。
+      required: false
+      default: false
+      selector:
+        boolean:
+
+stop:
+  name: 停止同步
+  description: 停止当前正在运行的 CW700S 查询或下载任务。

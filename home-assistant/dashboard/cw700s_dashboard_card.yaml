@@ -1,0 +1,105 @@
+type: vertical-stack
+cards:
+- type: entities
+  title: CW700S 云告警归档
+  show_header_toggle: false
+  state_color: true
+  entities:
+  - entity: sensor.cw700s_sync_status
+    name: 同步状态
+    icon: mdi:cctv
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: progress_percent
+    name: 当前进度
+    icon: mdi:progress-download
+    suffix: '%'
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: completed
+    name: 已处理
+    icon: mdi:counter
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: total
+    name: 本轮候选
+    icon: mdi:format-list-numbered
+  - type: section
+    label: 本轮结果
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: added
+    name: 新增录像
+    icon: mdi:download-circle-outline
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: skipped
+    name: 已有并跳过
+    icon: mdi:skip-next-circle-outline
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: failed
+    name: 下载失败
+    icon: mdi:alert-circle-outline
+  - type: section
+    label: 本地录像库
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: total_videos
+    name: 录像总数
+    icon: mdi:video-box
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: people_motion
+    name: PeopleMotion
+    icon: mdi:human-male
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: object_motion
+    name: ObjectMotion
+    icon: mdi:motion-sensor
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: storage_gb
+    name: 占用空间
+    icon: mdi:harddisk
+    suffix: ' GB'
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: latest_file_time
+    name: 最近录像写入时间
+    icon: mdi:clock-outline
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: last_sync_time
+    name: 上次同步时间
+    icon: mdi:cloud-check-outline
+  - type: attribute
+    entity: sensor.cw700s_sync_status
+    attribute: last_error
+    name: 最近错误
+    icon: mdi:alert-outline
+- type: horizontal-stack
+  cards:
+  - type: button
+    name: 立即同步
+    icon: mdi:cloud-download-outline
+    show_state: false
+    tap_action:
+      action: perform-action
+      perform_action: cw700s_downloader.sync
+      data:
+        entity_id: camera.isa_hlzoom_public_example_camera_control
+        full_scan: false
+  - type: button
+    name: 停止同步
+    icon: mdi:stop-circle-outline
+    show_state: false
+    tap_action:
+      action: perform-action
+      perform_action: cw700s_downloader.stop
+      confirmation:
+        text: 确定停止当前同步任务吗？
+- type: custom:cw700s-recent-card
+  title: 最近告警录像
+  count: 6

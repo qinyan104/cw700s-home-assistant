@@ -1,0 +1,9 @@
+{
+  "domain": "cw700s_downloader",
+  "name": "CW700S Event Exporter",
+  "version": "0.1.0",
+  "documentation": "https://github.com/al-one/hass-xiaomi-miot",
+  "dependencies": ["xiaomi_miot"],
+  "codeowners": [],
+  "iot_class": "cloud_polling"
+}

@@ -1,0 +1,66 @@
+command_line:
+  - sensor:
+      name: CW700S System Health
+      unique_id: cw700s_system_health
+      command: 'python3 /config/cw700s_health.py'
+      command_timeout: 15
+      scan_interval: 300
+      value_template: "{{ value_json.status }}"
+      json_attributes:
+        - problem_summary
+        - checked_at
+        - share_online
+        - share_writable
+        - free_gb
+        - total_gb
+        - used_percent
+        - last_sync_time
+        - hours_since_sync
+        - query_failures
+        - failed_events
+        - downloaded_events
+        - total_event_records
+
+automation:
+  - id: cw700s_health_problem_notification
+    alias: CW700S 健康异常提醒
+    description: Windows共享、磁盘或同步状态持续异常时在Home Assistant中提醒
+    triggers:
+      - trigger: state
+        entity_id: sensor.cw700s_system_health
+        to: "异常"
+        for: "00:10:00"
+      - trigger: state
+        entity_id: sensor.cw700s_system_health
+        to: "警告"
+        for: "01:00:00"
+    conditions: []
+    actions:
+      - action: persistent_notification.create
+        data:
+          notification_id: cw700s_health_problem
+          title: CW700S 系统健康提醒
+          message: >-
+            当前状态：{{ states('sensor.cw700s_system_health') }}
+
+            原因：{{ state_attr('sensor.cw700s_system_health', 'problem_summary') }}
+
+            Windows 剩余空间：{{ state_attr('sensor.cw700s_system_health', 'free_gb') }} GB
+
+            最近同步：{{ state_attr('sensor.cw700s_system_health', 'last_sync_time') }}
+    mode: single
+
+  - id: cw700s_health_recovery_clear_notification
+    alias: CW700S 健康恢复后清除提醒
+    description: 系统恢复正常5分钟后清除原有健康提醒
+    triggers:
+      - trigger: state
+        entity_id: sensor.cw700s_system_health
+        to: "正常"
+        for: "00:05:00"
+    conditions: []
+    actions:
+      - action: persistent_notification.dismiss
+        data:
+          notification_id: cw700s_health_problem
+    mode: restart

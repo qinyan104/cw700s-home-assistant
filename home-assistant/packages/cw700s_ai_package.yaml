@@ -1,0 +1,23 @@
+command_line:
+  - sensor:
+      name: CW700S AI Classification
+      unique_id: cw700s_ai_classification
+      command: 'python3 /config/cw700s_ai_status.py'
+      command_timeout: 15
+      scan_interval: 300
+      value_template: "{{ value_json.status }}"
+      json_attributes:
+        - database_online
+        - total_analyzed
+        - meaningful
+        - unrecognized
+        - people
+        - vehicles
+        - animals
+        - people_vehicle
+        - people_animal
+        - failed
+        - last_analyzed_at
+        - recent_meaningful
+        - checked_at
+        - problem_summary

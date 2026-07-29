@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import json
 from pathlib import Path
+import re
 import unittest
 
 
@@ -29,9 +30,25 @@ REQUIRED_FILES = {
 
 FORBIDDEN_SUFFIXES = {".db", ".log", ".mp4", ".mov", ".avi", ".mkv", ".pt"}
 PRIVATE_ENTITY_ID = "camera.isa_hlzoom_public_example_camera_control"
+PRIVATE_ENTITY_PATTERN = re.compile(
+    r"camera\.isa_hlzoom_[a-z0-9]+_camera_control"
+)
 
 
 class RepositoryTests(unittest.TestCase):
+    def test_private_entity_patterns_are_removed(self) -> None:
+        matches = []
+        for path in sorted(ROOT.rglob("*")):
+            if not path.is_file() or ".git" in path.parts:
+                continue
+            try:
+                text = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                continue
+            if PRIVATE_ENTITY_PATTERN.search(text):
+                matches.append(str(path.relative_to(ROOT)))
+        self.assertEqual([], matches)
+
     def test_required_files_exist(self) -> None:
         missing = sorted(path for path in REQUIRED_FILES if not (ROOT / path).is_file())
         self.assertEqual([], missing)

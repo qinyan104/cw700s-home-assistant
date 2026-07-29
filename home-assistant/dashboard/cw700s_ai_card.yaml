@@ -4,26 +4,26 @@ content: |-
   {% set e = 'sensor.cw700s_ai_classification' %}
   ## {{ states(e) }}
 
-  **已分析：** {{ state_attr(e, 'total_analyzed') or 0 }}  
-  **识别到目标：** {{ state_attr(e, 'meaningful') or 0 }}  
+  **已分析：** {{ state_attr(e, 'total_analyzed') or 0 }}<br>
+  **识别到目标：** {{ state_attr(e, 'meaningful') or 0 }}<br>
   **未识别目标：** {{ state_attr(e, 'unrecognized') or 0 }}
 
-  **人物相关：** {{ state_attr(e, 'people') or 0 }}  
-  **车辆相关：** {{ state_attr(e, 'vehicles') or 0 }}  
+  **人物相关：** {{ state_attr(e, 'people') or 0 }}<br>
+  **车辆相关：** {{ state_attr(e, 'vehicles') or 0 }}<br>
   **动物相关：** {{ state_attr(e, 'animals') or 0 }}
 
-  **人物 + 车辆：** {{ state_attr(e, 'people_vehicle') or 0 }}  
-  **人物 + 动物：** {{ state_attr(e, 'people_animal') or 0 }}  
+  **人物 + 车辆：** {{ state_attr(e, 'people_vehicle') or 0 }}<br>
+  **人物 + 动物：** {{ state_attr(e, 'people_animal') or 0 }}<br>
   **分析失败：** {{ state_attr(e, 'failed') or 0 }}
 
-  **最近分析：**  
+  **最近分析：**<br>
   {{ state_attr(e, 'last_analyzed_at') or '暂无记录' }}
 
   {% set recent = state_attr(e, 'recent_meaningful') or [] %}
   {% if recent | count > 0 %}
   ### 最近识别到目标的录像
   {% for item in recent %}
-  - **{{ item.category }}** · 置信度 {{ item.confidence }}  
+  - **{{ item.category }}** · 置信度 {{ item.confidence }}<br>
     `{{ item.path }}`
   {% endfor %}
   {% else %}
